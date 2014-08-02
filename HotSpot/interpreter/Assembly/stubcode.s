@@ -203,6 +203,30 @@ StubRoutines::forward exception [0x01bb0340, 0x01bb0372[ (50 bytes)
   0x01bb0369: mov    DWORD PTR [ecx+0x4],0x0
   0x01bb0370: jmp    ebx
 
+# Call stubs are used to call Java from C
+#
+#    [ return_from_Java     ] <--- rsp
+#    [ argument word n      ]
+#     ...
+# -N [ argument word 1      ]
+# -7 [ Possible padding for stack alignment ]
+# -6 [ Possible padding for stack alignment ]
+# -5 [ Possible padding for stack alignment ]
+# -4 [ mxcsr save           ] <--- rsp_after_call
+# -3 [ saved rbx,           ]
+# -2 [ saved rsi            ]
+# -1 [ saved rdi            ]
+#  0 [ saved rbp,           ] <--- rbp,
+#  1 [ return address       ] 
+#  2 [ ptr. to call wrapper ]
+#  3 [ result               ]
+#  4 [ result_type          ]
+#  5 [ method               ] <--- rbp + 20( 5 * wordSize ),
+#  6 [ entry_point          ] <--- rbp + 24( 6 * wordSize ),
+#  7 [ parameters           ] <--- rbp + 28( 7 * wordSize ),
+#  8 [ parameter_size       ] 
+#  9 [ thread               ]
+  
 StubRoutines::call_stub [0x01bb0372, 0x01bb0422[ (176 bytes)
   0x01bb0372: push   ebp
   0x01bb0373: mov    ebp,esp
@@ -231,8 +255,8 @@ StubRoutines::call_stub [0x01bb0372, 0x01bb0422[ (176 bytes)
   0x01bb03c9: inc    ebx
   0x01bb03ca: dec    ecx
   0x01bb03cb: jne    0x01bb03c2
-  0x01bb03cd: mov    ebx,DWORD PTR [ebp+0x14]
-  0x01bb03d0: mov    eax,DWORD PTR [ebp+0x18]
+  0x01bb03cd: mov    ebx,DWORD PTR [ebp+0x14] # ebp+20 method
+  0x01bb03d0: mov    eax,DWORD PTR [ebp+0x18] # ebp+24 entry_point
   0x01bb03d3: mov    esi,esp
   0x01bb03d5: call   eax
   0x01bb03d7: mov    edi,DWORD PTR [ebp+0xc]
