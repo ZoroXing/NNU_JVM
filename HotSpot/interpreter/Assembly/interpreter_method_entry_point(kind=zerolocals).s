@@ -79,7 +79,7 @@ method entry point (kind = zerolocals) [0x01b69800, 0x01b69980] 384 bytes
   0x01b69868: mov ebp,esp
   0x01b6986a: push esi   # set sender sp
   0x01b6986b: push 0x0
-  share/vm/oops/constMethodOop.hpp
+# share/vm/oops/constMethodOop.hpp
 # |------------------------------------------------------|
 # | header                                               | 0x00
 # | klass                                                | 0x04
