@@ -73,23 +73,62 @@ method entry point (kind = zerolocals) [0x01b69800, 0x01b69980] 384 bytes
   0x01b69861: jg 0x01b6985b
  
   0x01b69863: mov ecx,DWORD PTR [ebx+0x2c]
-  0x01b69866: push eax
-  0x01b69867: push ebp
+  #   generate_fixed_frame
+  0x01b69866: push eax   # save return address
+  0x01b69867: push ebp   # save old & set new rbp,
   0x01b69868: mov ebp,esp
-  0x01b6986a: push esi
+  0x01b6986a: push esi   # set sender sp
   0x01b6986b: push 0x0
-  0x01b69870: mov esi,DWORD PTR [ebx+0x8]
-  0x01b69873: lea esi,[esi+0x30]
-  0x01b69876: push ebx
+  share/vm/oops/constMethodOop.hpp
+# |------------------------------------------------------|
+# | header                                               | 0x00
+# | klass                                                | 0x04
+# |------------------------------------------------------|
+# | fingerprint 1                                        | 0x08
+# | fingerprint 2                                        | 0x0C
+# | method                         (oop)                 | 0x10
+# | stackmap_data                  (oop)                 | 0x14
+# | exception_table                (oop)                 | 0x18
+# | constMethod_size                                     | 0x1C
+# | interp_kind  | flags    | code_size                  | 0x20
+# | name index              | signature index            | 0x24
+# | method_idnum            | generic_signature_index    | 0x28
+# |------------------------------------------------------| 
+# |                                                      | 0x30
+# | byte codes                                           | 
+# |                                                      | 
+# |------------------------------------------------------|
+# | compressed linenumber table                          |
+# |  (see class CompressedLineNumberReadStream)          |
+# |  (note that length is unknown until decompressed)    |
+# |  (access flags bit tells whether table is present)   |
+# |  (indexed from start of constMethodOop)              |
+# |  (elements not necessarily sorted!)                  |
+# |------------------------------------------------------|
+# | localvariable table elements + length (length last)  |
+# |  (length is u2, elements are 6-tuples of u2)         |
+# |  (see class LocalVariableTableElement)               |
+# |  (access flags bit tells whether table is present)   |
+# |  (indexed from end of contMethodOop)                 |
+# |------------------------------------------------------|
+# | checked exceptions elements + length (length last)   |
+# |  (length is u2, elements are u2)                     |
+# |  (see class CheckedExceptionElement)                 |
+# |  (access flags bit tells whether table is present)   |
+# |  (indexed from end of constMethodOop)                |
+# |------------------------------------------------------|
+  0x01b69870: mov esi,DWORD PTR [ebx+0x8] # get constMethodOop
+  0x01b69873: lea esi,[esi+0x30]          # get codebase (★ESI = codebase)
+  0x01b69876: push ebx                    # save methodOop
   0x01b69877: push 0x0
-  0x01b6987c: mov edx,DWORD PTR [ebx+0x8]
-  0x01b6987f: mov edx,DWORD PTR [edx+0x14]
+  0x01b6987c: mov edx,DWORD PTR [ebx+0x8]  # set constant pool cache
+  0x01b6987f: mov edx,DWORD PTR [edx+0x14]  
   0x01b69882: mov edx,DWORD PTR [edx+0xc]
   0x01b69885: push edx
-  0x01b69886: push edi
-  0x01b69887: push esi
+  0x01b69886: push edi # set locals pointer
+  0x01b69887: push esi # set bcp
   0x01b69888: push 0x0
-  0x01b6988d: mov DWORD PTR [esp],esp
+  0x01b6988d: mov DWORD PTR [esp],esp  # set expression stack bottom
   0x01b69890: mov eax,DWORD PTR fs:[eiz*1+0x0]
   0x01b69898: mov eax,DWORD PTR [eax-0xc]
   0x01b6989b: mov BYTE PTR [eax+0x185],0x1
@@ -116,7 +155,7 @@ method entry point (kind = zerolocals) [0x01b69800, 0x01b69980] 384 bytes
   0x01b69906: push ecx
   0x01b69907: call 0x6e041650
   0x01b6990c: add esp,0x8
-  0x01b6990f: movzx ebx,BYTE PTR [esi]
+  0x01b6990f: movzx ebx,BYTE PTR [esi] 
   0x01b69912: jmp DWORD PTR [ebx*4+0x6e22b918]
   0x01b69919: mov eax,0x0
   0x01b6991e: call 0x01b69928
@@ -140,3 +179,5 @@ method entry point (kind = zerolocals) [0x01b69800, 0x01b69980] 384 bytes
   0x01b69977: ret
   0x01b69978: mov ebx,DWORD PTR [ebp-0xc]
   0x01b6997b: jmp 0x01b698bc
+
+
