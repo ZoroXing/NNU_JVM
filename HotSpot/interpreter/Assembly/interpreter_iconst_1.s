@@ -20,10 +20,10 @@ iconst_1  4 iconst_1  [0x01b6b4c0, 0x01b6b500]  64 bytes
 # itos入口---------------------------------------------------------------------
   0x01b6b4e3: push   eax
 # vtos入口---------------------------------------------------------------------
-  0x01b6b4e4: mov    eax,0x1 #iconst_1的实际处理逻辑
+  0x01b6b4e4: mov    eax,0x1 #iconst_1的实际处理逻辑，缓存到EAX寄存器
   0x01b6b4e9: movzx  ebx,BYTE PTR [esi+0x1]
   0x01b6b4ed: inc    esi
-  0x01b6b4ee: jmp    DWORD PTR [ebx*4+0x6e22a518]
+  0x01b6b4ee: jmp    DWORD PTR [ebx*4+0x6e22a518] # 0x6e22a518 为Dispatch table的地址，每一项4个字节
   0x01b6b4f5: xchg   ax,ax
   0x01b6b4f8: add    BYTE PTR [eax],al
   0x01b6b4fa: add    BYTE PTR [eax],al
